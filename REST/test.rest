@@ -1,5 +1,25 @@
 POST http://localhost:3000/cats
+Content-Type: application/json
+
+{
+  "id": 1
+}
 
 ###
 GET http://localhost:3000/cats/id
 ?id=2
+
+###
+
+GET http://localhost:3000/auth/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiYWNjb3VudCI6InRlc3QwMDEiLCJpYXQiOjE2NzUwMTgwNDMsImV4cCI6MTY3NTEwNDQ0M30.bPTcshja5WwW0mI7cYsNO6ahIpe-7AWAOLlOb0QZ-JI
+
+###
+
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "account": "test001",
+  "password": "test001"
+}

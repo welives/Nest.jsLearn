@@ -1,8 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ModuleRef, ContextIdFactory } from '@nestjs/core';
-import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-local';
-import { AuthService } from './auth.service';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common'
+import { ModuleRef, ContextIdFactory } from '@nestjs/core'
+import { PassportStrategy } from '@nestjs/passport'
+import { Strategy } from 'passport-local'
+import { AuthService } from './auth.service'
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -10,7 +14,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super({
       passReqToCallback: true,
       usernameField: 'account',
-    });
+    })
   }
 
   // 验证通过后自动挂载到req.user上
@@ -19,22 +23,28 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     account: string,
     password: string,
   ): Promise<any> {
-    const contextId = ContextIdFactory.getByRequest(request);
-    const authService = await this.moduleRef.resolve(AuthService, contextId);
-    const res = await authService.validateUser(account, password);
+    if (
+      !Object.prototype.hasOwnProperty.call(request.body, 'account') ||
+      !Object.prototype.hasOwnProperty.call(request.body, 'password')
+    ) {
+      throw new BadRequestException('缺少参数')
+    }
+    const contextId = ContextIdFactory.getByRequest(request)
+    const authService = await this.moduleRef.resolve(AuthService, contextId)
+    const res = await authService.validateUser(account, password)
     switch (res.type) {
       case 0:
-        return res.result;
+        return res.result
       case 1:
         throw new UnauthorizedException({
           code: 401,
           message: '账号或密码错误',
-        });
+        })
       default:
         throw new UnauthorizedException({
           code: 404,
           message: '用户不存在',
-        });
+        })
     }
   }
 }
